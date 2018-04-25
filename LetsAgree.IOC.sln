@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.Extensions", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.Test.NetFW", "LetsAgree.IOC.Test.NetFW\LetsAgree.IOC.Test.NetFW.csproj", "{028BD45B-4C80-4A79-BEDB-59834E44A29E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.StructureMapShim", "LetsAgree.IOC.StructureMapShim\LetsAgree.IOC.StructureMapShim.csproj", "{7514B9D0-B515-4269-8FDA-C1A56F269996}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{028BD45B-4C80-4A79-BEDB-59834E44A29E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{028BD45B-4C80-4A79-BEDB-59834E44A29E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{028BD45B-4C80-4A79-BEDB-59834E44A29E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7514B9D0-B515-4269-8FDA-C1A56F269996}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7514B9D0-B515-4269-8FDA-C1A56F269996}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7514B9D0-B515-4269-8FDA-C1A56F269996}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7514B9D0-B515-4269-8FDA-C1A56F269996}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,11 +3,12 @@ using System.Reflection;
 
 namespace LetsAgree.IOC
 {
-    public interface IRegistryCreator<out C, out R>
-        where R : IRegister<C>
-        where C : IRegisterConfig
+    public interface IRegistryCreator<out Config, out Registry, out Container>
+        where Registry : IRegister<Config, Container>
+        where Config : IRegisterConfig
+        where Container : IContainer
     {
-        R GenerateRegistry();
+        Registry GenerateRegistry();
     }
 
     public interface IRegisterConfig
@@ -23,30 +24,44 @@ namespace LetsAgree.IOC
         void AsDecorator();
     }
 
-    public interface IRegister<out C> where C : IRegisterConfig
+    public interface IRegister<out Config, out Container> 
+        where Config : IRegisterConfig
+        where Container : IContainer
     {
-        IContainer GenerateContainer();
+        Container GenerateContainer();
     }
-    public interface IBasicRegistration<out C> : IRegister<C> where C : IRegisterConfig
+    public interface IBasicRegistration<out Config, out Container> : IRegister<Config, Container>
+        where Config : IRegisterConfig
+        where Container : IContainer
     {
-        C Register(Type service, Type impl);
-        C Register(Type service, Func<Object> creator);
+        Config Register(Type service, Type impl);
+        Config Register(Type service, Func<Object> creator);
     }
-    public interface IGenericRegistration<out C> : IRegister<C> where C : IRegisterConfig
+    public interface IGenericRegistration<out Config, out Container> : IRegister<Config, Container> 
+        where Config : IRegisterConfig
+        where Container : IContainer
     {
-        C Register<Service, Implimentation>();
-        C Register<Service>(Func<Service> implimentation);
+        Config Register<Service, Implimentation>();
+        Config Register<Service>(Func<Service> implimentation);
     }
-    public interface IScanningRegistraction<out C> : IRegister<C> where C : IRegisterConfig
+    public interface IScanningRegistraction<out Config, out Container> : IRegister<Config, Container> 
+        where Config : IRegisterConfig
+        where Container : IContainer
     {
         void RegisterAssembly(Assembly a);
     }
-    
+
     public interface IContainer
     {
+    }
+    public interface IBasicContainer : IContainer
+    {
         object Resolve(Type t);
-        T Resolve<T>();
         bool TryResolve(Type t, out object service);
+    }
+    public interface IGenericContainer : IContainer
+    { 
+        T Resolve<T>();
         bool TryResolve<T>(out T service);
     }
 }

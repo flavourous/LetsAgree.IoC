@@ -11,42 +11,92 @@ namespace LetsAgree.IOC.Test.NetFW
     [TestFixture]
     public class UseTest
     {
-        [Test]
-        public void Use()
-        {
-            Assert.Throws<NotImplementedException>(() => UseDI(new MyDi()));
-        }
-
-        static void UseDI<C, R>(IRegistryCreator<C,R> creator)
+        // An injection point, the composition root, expressing IOC requirments
+        static void UseDI<C, R, T>(IRegistryCreator<C,R,T> creator)
+            where R : IBasicRegistration<C,T>, IGenericRegistration<C,T>
             where C : ISingletonConfig, IDecoratorConfig
-            where R : IBasicRegistration<C>, IGenericRegistration<C>
+            where T : IBasicContainer, IGenericContainer
         {
+            // And then doing some random stuff
             var reg = creator.GenerateRegistry();
             reg.Register<int, bool>();
             reg.Register(typeof(string), typeof(Assembly));
+            var ct = reg.GenerateContainer();
+            ct.TryResolve(out int lol);
+            lol += 1;
+            ct.TryResolve(out myIOCConstructedClassHonestly);
         }
+        static ICustomTypeProvider myIOCConstructedClassHonestly;
 
-        class MyDi : IRegistryCreator<IConfigSpec, IRegistrySpec<IConfigSpec>>
+        public abstract class MyLibrary
         {
-            public IRegistrySpec<IConfigSpec> GenerateRegistry()
+            // Repeating constraints is annoying, but it allows users to send 3rd party DI frameworks to 3rd party Libraries without any fuss.
+            // (generic paramaters on classes cannot be inferred)
+            public static MyLibrary Create<C,R,T>(IRegistryCreator<C, R, T> c)
+                where R : IBasicRegistration<C, T>, IGenericRegistration<C, T>
+                where C : ISingletonConfig, IDecoratorConfig
+                where T : IBasicContainer, IGenericContainer
             {
-                return (IRegistrySpec<IConfigSpec>)new MyReg();
+                return new MYDiClass<C, R, T>(c);
+            }
+            class MYDiClass<C, R, T> : MyLibrary
+                where R : IBasicRegistration<C, T>, IGenericRegistration<C, T>
+                where C : ISingletonConfig, IDecoratorConfig
+                where T : IBasicContainer, IGenericContainer
+            {
+                public MYDiClass(IRegistryCreator<C, R, T> creator)
+                {
+                    // And then doing some random stuff
+                    var reg = creator.GenerateRegistry();
+                    reg.Register<int, bool>();
+                    reg.Register(typeof(string), typeof(Assembly));
+                    var ct = reg.GenerateContainer();
+                    ct.TryResolve(out int lol);
+                    lol += 1;
+                    ct.TryResolve(out myIOCConstructedClassHonestly);
+                }
             }
         }
+
+
+        [Test]
+        public void Use()
+        {
+            // Injecting our below implimentation
+            Assert.Throws<NotImplementedException>(() => UseDI(new MyDIFramework()));
+            Assert.Throws<NotImplementedException>(() => MyLibrary.Create(new MyDIFramework()));
+        }
+
+        // Implimentation capabilities
         public interface IConfigSpec : 
             ISingletonConfig, 
             IDecoratorConfig
         {
         }
-        public interface IRegistrySpec<T> :
-            IBasicRegistration<T>,
-            IGenericRegistration<T>
-            where T : IRegisterConfig
+        public interface IContainerSpec :
+            IBasicContainer,
+            IGenericContainer
         {
         }
-        class MyReg : IRegistrySpec<MyConfig>
+        public interface IRegistrySpec<C,T> :
+            IBasicRegistration<C,T>,
+            IGenericRegistration<C,T>
+            where C : IRegisterConfig
+            where T : IContainer
         {
-            public IContainer GenerateContainer()
+        }
+
+        // Implimentation
+        class MyDIFramework : IRegistryCreator<IConfigSpec, IRegistrySpec<IConfigSpec, IContainerSpec>, IContainerSpec>
+        {
+            public IRegistrySpec<IConfigSpec, IContainerSpec> GenerateRegistry()
+            {
+                return (IRegistrySpec<IConfigSpec, IContainerSpec>)new MyRegistry();
+            }
+        }
+        class MyRegistry : IRegistrySpec<MyConfig, MyContainer>
+        {
+            public MyContainer GenerateContainer()
             {
                 throw new NotImplementedException();
             }
@@ -67,6 +117,28 @@ namespace LetsAgree.IOC.Test.NetFW
             }
 
             public MyConfig Register<Service>(Func<Service> implimentation)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        class MyContainer : IContainerSpec
+        {
+            public object Resolve(Type t)
+            {
+                throw new NotImplementedException();
+            }
+
+            public T Resolve<T>()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool TryResolve(Type t, out object service)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool TryResolve<T>(out T service)
             {
                 throw new NotImplementedException();
             }
