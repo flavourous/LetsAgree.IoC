@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,44 +12,30 @@ namespace LetsAgree.IOC.Test.NetFW
     [TestFixture]
     public class UseTest
     {
-        // An injection point, the composition root, expressing IOC requirments
-        static void UseDI<C, R, T>(IRegistryCreator<C,R,T> creator)
-            where R : IBasicRegistration<C,T>, IGenericRegistration<C,T>
-            where C : ISingletonConfig, IDecoratorConfig
-            where T : IBasicContainer, IGenericContainer
-        {
-            // And then doing some random stuff
-            var reg = creator.GenerateRegistry();
-            reg.Register<int, bool>();
-            reg.Register(typeof(string), typeof(Assembly));
-            var ct = reg.GenerateContainer();
-            ct.TryResolve(out int lol);
-            lol += 1;
-            ct.TryResolve(out myIOCConstructedClassHonestly);
-        }
-        static ICustomTypeProvider myIOCConstructedClassHonestly;
-
         public abstract class MyLibrary
         {
+            static ICustomTypeProvider myIOCConstructedClassHonestly;
             // Repeating constraints is annoying, but it allows users to send 3rd party DI frameworks to 3rd party Libraries without any fuss.
             // (generic paramaters on classes cannot be inferred)
-            public static MyLibrary Create<C,R,T>(IRegistryCreator<C, R, T> c)
-                where R : IBasicRegistration<C, T>, IGenericRegistration<C, T>
-                where C : ISingletonConfig, IDecoratorConfig
+            public static MyLibrary Create<R, CBasic, CGen, T>(Func<R> c)
+                where R : IDynamicRegistration<CBasic>, IGenericRegistration<CGen>, IContainerGeneration<T>
+                where CBasic : ISingletonConfig
+                where CGen : ISingletonConfig, IDecoratorConfig
                 where T : IBasicContainer, IGenericContainer
             {
-                return new MYDiClass<C, R, T>(c);
+                return new MYDiClass<R, CBasic, CGen, T>(c);
             }
-            class MYDiClass<C, R, T> : MyLibrary
-                where R : IBasicRegistration<C, T>, IGenericRegistration<C, T>
-                where C : ISingletonConfig, IDecoratorConfig
+            class MYDiClass<R, CBasic, CGen, T> : MyLibrary
+                where R : IDynamicRegistration<CBasic>, IGenericRegistration<CGen>, IContainerGeneration<T>
+                where CBasic : ISingletonConfig
+                where CGen : ISingletonConfig, IDecoratorConfig
                 where T : IBasicContainer, IGenericContainer
             {
-                public MYDiClass(IRegistryCreator<C, R, T> creator)
+                public MYDiClass(Func<R> creator)
                 {
                     // And then doing some random stuff
-                    var reg = creator.GenerateRegistry();
-                    reg.Register<int, bool>();
+                    var reg = creator();
+                    reg.Register<IList, ArrayList>();
                     reg.Register(typeof(string), typeof(Assembly));
                     var ct = reg.GenerateContainer();
                     ct.TryResolve(out int lol);
@@ -58,13 +45,43 @@ namespace LetsAgree.IOC.Test.NetFW
             }
         }
 
+        public abstract class MyUnspecificLibrary
+        {
+            static ICustomTypeProvider myIOCConstructedClassHonestly;
+            // Repeating constraints is annoying, but it allows users to send 3rd party DI frameworks to 3rd party Libraries without any fuss.
+            // (generic paramaters on classes cannot be inferred)
+            public static MyLibrary Create<R, C, T>(Func<R> c)
+                where R : IDynamicRegistration<C>, IGenericRegistration<C>, IContainerGeneration<T>
+                where C : ISingletonConfig, IDecoratorConfig
+                where T : IBasicContainer, IGenericContainer
+            {
+                return new MYDiClass<R, C, T>(c);
+            }
+            class MYDiClass<R, C, T> : MyLibrary
+                where R : IDynamicRegistration<C>, IGenericRegistration<C>, IContainerGeneration<T>
+                where C : ISingletonConfig, IDecoratorConfig
+                where T : IBasicContainer, IGenericContainer
+            {
+                public MYDiClass(Func<R> creator)
+                {
+                    // And then doing some random stuff
+                    var reg = creator();
+                    reg.Register<IEnumerable<int>, List<int>>();
+                    reg.Register(typeof(string), typeof(Assembly));
+                    var ct = reg.GenerateContainer();
+                    ct.TryResolve(out int lol);
+                    lol += 1;
+                    ct.TryResolve(out myIOCConstructedClassHonestly);
+                }
+            }
+        }
 
         [Test]
         public void Use()
         {
-            // Injecting our below implimentation
-            Assert.Throws<NotImplementedException>(() => UseDI(new MyDIFramework()));
-            Assert.Throws<NotImplementedException>(() => MyLibrary.Create(new MyDIFramework()));
+            // Can we avoid specifying the specs? Thats annoying for a user.  (one way was to not allow different C and T for each R)
+            Assert.Throws<NotImplementedException>(() => MyLibrary.Create<IRegistrySpec, IConfigSpec, IConfigSpec, IContainerSpec>(() => new MyRegistry()));
+            Assert.Throws<NotImplementedException>(() => MyUnspecificLibrary.Create<IRegistrySpec, IConfigSpec, IContainerSpec>(() => new MyRegistry()));
         }
 
         // Implimentation capabilities
@@ -78,45 +95,37 @@ namespace LetsAgree.IOC.Test.NetFW
             IGenericContainer
         {
         }
-        public interface IRegistrySpec<C,T> :
-            IBasicRegistration<C,T>,
-            IGenericRegistration<C,T>
-            where C : IRegisterConfig
-            where T : IContainer
+        public interface IRegistrySpec :
+            IDynamicRegistration<IConfigSpec>,
+            IGenericRegistration<IConfigSpec>,
+            IContainerGeneration<IContainerSpec>
         {
         }
 
         // Implimentation
-        class MyDIFramework : IRegistryCreator<IConfigSpec, IRegistrySpec<IConfigSpec, IContainerSpec>, IContainerSpec>
+        class MyRegistry : IRegistrySpec
         {
-            public IRegistrySpec<IConfigSpec, IContainerSpec> GenerateRegistry()
-            {
-                return (IRegistrySpec<IConfigSpec, IContainerSpec>)new MyRegistry();
-            }
-        }
-        class MyRegistry : IRegistrySpec<MyConfig, MyContainer>
-        {
-            public MyContainer GenerateContainer()
+            public IContainerSpec GenerateContainer()
             {
                 throw new NotImplementedException();
             }
 
-            public MyConfig Register(Type service, Type impl)
+            public IConfigSpec Register(Type service, Type impl)
             {
                 throw new NotImplementedException();
             }
 
-            public MyConfig Register(Type service, Func<object> creator)
+            public IConfigSpec Register(Type service, Func<object> creator)
             {
                 throw new NotImplementedException();
             }
 
-            public MyConfig Register<Service, Implimentation>()
+            public IConfigSpec Register<Service, Implimentation>() where Implimentation : Service
             {
                 throw new NotImplementedException();
             }
 
-            public MyConfig Register<Service>(Func<Service> implimentation)
+            public IConfigSpec Register<Service>(Func<Service> implimentation)
             {
                 throw new NotImplementedException();
             }
