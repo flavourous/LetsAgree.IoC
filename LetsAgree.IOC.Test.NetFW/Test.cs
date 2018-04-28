@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace LetsAgree.IOC.Test.NetFW
 {
+    // generic paramaters on classes cannot be inferred, but can on methods.  Could use static creator pattern.
+    // however, the compiler has been unable to resolve types anyway since I made IConfig less strict (vary on each IxxxRegistration)
     [TestFixture]
     public class UseTest
     {
         public abstract class MyLibrary
         {
             static ICustomTypeProvider myIOCConstructedClassHonestly;
-            // Repeating constraints is annoying, but it allows users to send 3rd party DI frameworks to 3rd party Libraries without any fuss.
-            // (generic paramaters on classes cannot be inferred)
             public static MyLibrary Create<R, CBasic, CGen, T>(Func<R> c)
                 where R : IDynamicRegistration<CBasic>, IGenericRegistration<CGen>, IContainerGeneration<T>
                 where CBasic : ISingletonConfig
@@ -38,8 +38,7 @@ namespace LetsAgree.IOC.Test.NetFW
                     reg.Register<IList, ArrayList>();
                     reg.Register(typeof(string), typeof(Assembly));
                     var ct = reg.GenerateContainer();
-                    ct.TryResolve(out int lol);
-                    lol += 1;
+                    ct.TryResolve(out IStructuralComparable lol);
                     ct.TryResolve(out myIOCConstructedClassHonestly);
                 }
             }
@@ -69,8 +68,7 @@ namespace LetsAgree.IOC.Test.NetFW
                     reg.Register<IEnumerable<int>, List<int>>();
                     reg.Register(typeof(string), typeof(Assembly));
                     var ct = reg.GenerateContainer();
-                    ct.TryResolve(out int lol);
-                    lol += 1;
+                    ct.TryResolve(out IAppDomainSetup lol);
                     ct.TryResolve(out myIOCConstructedClassHonestly);
                 }
             }
@@ -120,7 +118,9 @@ namespace LetsAgree.IOC.Test.NetFW
                 throw new NotImplementedException();
             }
 
-            public IConfigSpec Register<Service, Implimentation>() where Implimentation : Service
+            public IConfigSpec Register<Service, Implimentation>() 
+                where Implimentation : class, Service
+                where Service : class
             {
                 throw new NotImplementedException();
             }
@@ -137,7 +137,7 @@ namespace LetsAgree.IOC.Test.NetFW
                 throw new NotImplementedException();
             }
 
-            public T Resolve<T>()
+            public T Resolve<T>() where T : class
             {
                 throw new NotImplementedException();
             }
@@ -147,7 +147,7 @@ namespace LetsAgree.IOC.Test.NetFW
                 throw new NotImplementedException();
             }
 
-            public bool TryResolve<T>(out T service)
+            public bool TryResolve<T>(out T service) where T : class
             {
                 throw new NotImplementedException();
             }
