@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC.StructureMapS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.MvxSimpleShim", "LetsAgree.IOC.MvxSimpleShim\LetsAgree.IOC.MvxSimpleShim.csproj", "{C508DBBF-4465-4DA3-AFE4-030FB212B8F1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.Extensions.MvxSimpleShim", "LetsAgree.IOC.Extensions.MvxSimpleShim\LetsAgree.IOC.Extensions.MvxSimpleShim.csproj", "{96185787-A941-498D-A4FF-12D3C6C43F70}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{C508DBBF-4465-4DA3-AFE4-030FB212B8F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C508DBBF-4465-4DA3-AFE4-030FB212B8F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C508DBBF-4465-4DA3-AFE4-030FB212B8F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96185787-A941-498D-A4FF-12D3C6C43F70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96185787-A941-498D-A4FF-12D3C6C43F70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96185787-A941-498D-A4FF-12D3C6C43F70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96185787-A941-498D-A4FF-12D3C6C43F70}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

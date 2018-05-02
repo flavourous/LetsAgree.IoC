@@ -6,23 +6,23 @@ using System.Reflection;
 
 namespace LetsAgree.IOC.MvxSimpleShim
 {
-    public interface IMvxContainerSpec :
+    public interface IMvxSimpleContainer :
                                       IBasicContainer,
                                       IGenericContainer
     { }
-    public interface IMvxConfigSpec :
+    public interface IMvxSimpleConfig :
                                    ISingletonConfig
     { }
-    public interface IRegSpec :
-                                IContainerGeneration<IMvxContainerSpec>,
-                                IDynamicRegistration<IMvxConfigSpec>,
-                                IGenericRegistration<IMvxConfigSpec>,
-                                IDynamicLocatorRegistration<IMvxConfigSpec>,
-                                IGenericLocatorRegistration<IMvxConfigSpec>,
-                                IScanningRegistraction<IMvxConfigSpec>
+    public interface IMvxSimpleRegistry :
+                                IContainerGeneration<IMvxSimpleContainer>,
+                                IDynamicRegistration<IMvxSimpleConfig>,
+                                IGenericRegistration<IMvxSimpleConfig>,
+                                IDynamicLocatorRegistration<IMvxSimpleConfig>,
+                                IGenericLocatorRegistration<IMvxSimpleConfig>,
+                                IScanningRegistraction<IMvxSimpleConfig>
     { }
 
-    public class MvxRegistry : IRegSpec
+    public class MvxRegistry : IMvxSimpleRegistry
     {
         readonly PPQueue<MvxConfig> ss = new PPQueue<MvxConfig>();
         readonly Func<Assembly, IEnumerable<Type>> CreatableTypes;
@@ -31,32 +31,32 @@ namespace LetsAgree.IOC.MvxSimpleShim
             this.CreatableTypes = CreatableTypes;
         }
 
-        public IMvxContainerSpec GenerateContainer()
+        public IMvxSimpleContainer GenerateContainer()
         {
             while(ss.Count > 0) ss.Dequeue().Register();
             return new MvxContainer();
         }
 
-        public IMvxConfigSpec Register(Type service, Type impl) 
+        public IMvxSimpleConfig Register(Type service, Type impl) 
             => ss.PP(new MvxDynConfig(service, impl));
 
-        public IMvxConfigSpec Register<Service, Implimentation>() 
+        public IMvxSimpleConfig Register<Service, Implimentation>() 
             where Implimentation : class, Service 
             where Service : class 
             => ss.PP(new MvxGenConfig<Service,Implimentation>());
 
-        public IMvxConfigSpec Register(Type service, Func<object> creator) 
+        public IMvxSimpleConfig Register(Type service, Func<object> creator) 
             => ss.PP(new MvxLocatorConfig(service, creator));
 
-        public IMvxConfigSpec Register<Service>(Func<Service> implimentation) 
+        public IMvxSimpleConfig Register<Service>(Func<Service> implimentation) 
             where Service : class 
             => ss.PP(new MvxLocatorConfig<Service>(implimentation));
 
-        public IMvxConfigSpec RegisterAssembly(Assembly a) 
-            => ss.PP(new MvxScannerConfig(CreatableTypes(a)));
+        public IMvxSimpleConfig RegisterAssembly(Assembly a) 
+            => ss.PP(new MvxScannerConfig(CreatableTypes(a).EndingWith("Service")));
     }
     class PPQueue<T> : Queue<T> { public T PP(T item) { Enqueue(item); return item; } }
-    abstract class MvxConfig :IMvxConfigSpec
+    abstract class MvxConfig :IMvxSimpleConfig
     {
         public abstract void Register();
         protected bool singleton = false;
@@ -115,7 +115,7 @@ namespace LetsAgree.IOC.MvxSimpleShim
             else Mvx.RegisterType<S, I>();
         }
     }
-    class MvxContainer : IMvxContainerSpec
+    class MvxContainer : IMvxSimpleContainer
     {
         public object Resolve(Type t) => Mvx.Resolve(t);
         public T Resolve<T>() where T : class => Mvx.Resolve<T>();

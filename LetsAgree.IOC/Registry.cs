@@ -3,6 +3,7 @@ using System.Reflection;
 
 namespace LetsAgree.IOC
 {
+    // TODO: would "AsDynamic" be better than dynamic being implicit like this?
     public interface INoConfig { }
     public interface ISingletonConfig : INoConfig
     {
@@ -25,6 +26,7 @@ namespace LetsAgree.IOC
     {
         Config Register(Type service, Func<Object> creator);
     }
+    // TODO: Do the constraints on Service/Implimentation belong here? Should we split again into different interfaces?
     public interface IGenericRegistration<out Config> 
     {
         Config Register<Service, Implimentation>() 
@@ -41,6 +43,7 @@ namespace LetsAgree.IOC
         Config RegisterAssembly(Assembly a);
     }
 
+    // TODO: should we have containers at all? should resolution by constructor injection be encouraged instead?
     public interface IBasicContainer 
     {
         object Resolve(Type t);

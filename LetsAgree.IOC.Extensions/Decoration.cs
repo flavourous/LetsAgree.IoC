@@ -5,6 +5,7 @@ using System.Reflection;
 
 namespace LetsAgree.IOC.Extensions
 {
+    // TODO: Can this be written in terms of LetsAgree.IOC interfaces alone, as a registry decorator or something?
     public delegate void MakeDecoratorCallback();
     public delegate Type DoNotRegisterCallback();
     public delegate void RegisterServiceDelegate(Type service, Func<object> creator);
