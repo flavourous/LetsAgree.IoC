@@ -32,12 +32,19 @@ namespace LetsAgree.IOC.Extensions
             public DecTypeIocInfo(Type t, Type decoratorService)
             {
                 serviceType = t;
-                var ctrs = t.GetConstructors(BindingFlags.Public)
-                            .Select(x => new { c = x, p = x.GetParameters().Select(y => y.ParameterType).ToArray() })
-                            .Where(x=>x.p.Contains(decoratorService))
-                            .ToArray();
+                var actrs = decoratorService.GetConstructors()
+                             .ToArray();
+                var ctrs = actrs.Select(x => new { c = x, p = x.GetParameters().Select(y => y.ParameterType).ToArray() })
+                                .Where(x=>x.p.Contains(t))
+                                .ToArray();
                 if (ctrs.Length > 1) throw new InvalidOperationException("Multiple public constructors have the decorator service");
-                if (ctrs.Length == 0) throw new InvalidOperationException("No public constructors have the decorator service");
+                if (ctrs.Length == 0)
+                {
+                    var ex = new InvalidOperationException($"No public constructors of {decoratorService.Name} have the decorator service. ({actrs.Length} total)");
+                    ex.Data["implimentation"] = decoratorService;
+                    ex.Data["interface"] = t;
+                    throw ex;
+                }
                 constructor = ctrs.Single().c;
                 parameters = ctrs.Single().p;
             }
@@ -55,14 +62,14 @@ namespace LetsAgree.IOC.Extensions
         }
 
         class ssArg { public DoNotRegisterCallback service; public bool madeDecorator; }
-        readonly Dictionary<Type, Stack<ssArg>> serviceStacks = new Dictionary<Type, Stack<ssArg>>();
+        readonly Dictionary<Type, List<ssArg>> serviceStacks = new Dictionary<Type, List<ssArg>>();
 
         // nees to know the decorations and roots. top decorator will be registered, so root cannot be.
         public MakeDecoratorCallback ServiceRegisteredCallback(Type t, DoNotRegisterCallback c)
         {
-            if (!serviceStacks.ContainsKey(t)) serviceStacks[t] = new Stack<ssArg>();
+            if (!serviceStacks.ContainsKey(t)) serviceStacks[t] = new List<ssArg>();
             var ssa = new ssArg { service = c };
-            serviceStacks[t].Push(ssa);
+            serviceStacks[t].Add(ssa);
             return () => ssa.madeDecorator = true;
         }
     }

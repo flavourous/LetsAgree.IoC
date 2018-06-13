@@ -21,7 +21,7 @@ namespace LetsAgree.IOC.MvxSimpleShim
                                 IGenericLocatorRegistration<IMvxSimpleConfig>,
                                 IScanningRegistraction<IMvxSimpleConfig>
     { }
-
+    public class PPQueue<T> : Queue<T> { public T PP(T item) { Enqueue(item); return item; } }
     public class MvxRegistry : IMvxSimpleRegistry
     {
         readonly PPQueue<MvxConfig> ss = new PPQueue<MvxConfig>();
@@ -55,7 +55,6 @@ namespace LetsAgree.IOC.MvxSimpleShim
         public IMvxSimpleConfig RegisterAssembly(Assembly a) 
             => ss.PP(new MvxScannerConfig(CreatableTypes(a).EndingWith("Service")));
     }
-    class PPQueue<T> : Queue<T> { public T PP(T item) { Enqueue(item); return item; } }
     abstract class MvxConfig :IMvxSimpleConfig
     {
         public abstract void Register();

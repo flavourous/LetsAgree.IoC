@@ -32,8 +32,11 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
         public IMvxSimpleContainer GenerateContainer()
         {
             drh.AnylyzeAndRegisterDecorators((s, i) => basic.Register(s, i), Mvx.IocConstruct);
+            while (ss.Count > 0) ss.Dequeue().Process();
             return new ProxyContainer { mc = basic.GenerateContainer() };
         }
+
+        readonly PPQueue<FakedConfig> ss = new PPQueue<FakedConfig>();
 
         public IMvxSimpleDecoratingConfig Register(Type service, Type impl)
         {
@@ -43,12 +46,12 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
                 donothing = true;
                 return impl;
             });
-            return new FakedConfig((s, d) =>
+            return ss.PP(new FakedConfig((s, d) =>
             {
                 if (donothing) return; // AsDecorator was called
                 var reg = basic.Register(service, impl);
                 if (s) reg.AsSingleton();
-            }, () => makeDecorator());
+            }, () => makeDecorator()));
         }
 
         public IMvxSimpleConfig Register<Service>(Func<Service> implimentation) where Service : class
@@ -65,12 +68,12 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
                 donothing = true;
                 return typeof(Implimentation);
             });
-            return new FakedConfig((s, d) =>
+            return ss.PP(new FakedConfig((s, d) =>
             {
                 if (donothing) return; // AsDecorator was called
                 var reg = basic.Register<Service, Implimentation>();
                 if (s) reg.AsSingleton();
-            }, () => makeDecorator());
+            }, () => makeDecorator()));
         }
 
         public IMvxSimpleDecoratingConfig RegisterAssembly(Assembly a)
@@ -85,7 +88,7 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
                                   })
                               )).ToArray();
             // It's gonna remove all service types if AsDecorator is called so no worries!
-            return new FakedConfig((s, d) =>
+            return ss.PP(new FakedConfig((s, d) =>
             {
                 if (s) scanned.RegisterAsLazySingleton();
                 else scanned.RegisterAsDynamic();
@@ -93,7 +96,7 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
             {
                 foreach (var act in decorateAll)
                     act();
-            });
+            }));
         }
     }
     class FakedConfig : IMvxSimpleDecoratingConfig
