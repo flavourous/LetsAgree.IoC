@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LetsAgree.IOC.Example")]
+[assembly: AssemblyTitle("LetsAgree.IOC.Extensions.MvxSimpleShim.Test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("LetsAgree.IOC.Example")]
+[assembly: AssemblyProduct("LetsAgree.IOC.Extensions.MvxSimpleShim.Test")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("028bd45b-4c80-4a79-bedb-59834e44a29e")]
+[assembly: Guid("49e0580a-02ed-45d7-931a-320ca1e85acb")]
 
 // Version information for an assembly consists of the following four values:
 //

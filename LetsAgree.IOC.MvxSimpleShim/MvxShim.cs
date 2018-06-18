@@ -55,7 +55,7 @@ namespace LetsAgree.IOC.MvxSimpleShim
         public IMvxSimpleConfig RegisterAssembly(Assembly a) 
             => ss.PP(new MvxScannerConfig(CreatableTypes(a).EndingWith("Service")));
     }
-    abstract class MvxConfig :IMvxSimpleConfig
+    abstract class MvxConfig : IMvxSimpleConfig
     {
         public abstract void Register();
         protected bool singleton = false;
@@ -102,7 +102,7 @@ namespace LetsAgree.IOC.MvxSimpleShim
         public MvxDynConfig(Type s, Type i) { this.s = s; this.i = i; }
         public override void Register()
         {
-            if (singleton) Mvx.RegisterSingleton(s, i);
+            if (singleton) Mvx.RegisterSingleton(s, () => Mvx.IocConstruct(i));
             else Mvx.RegisterType(s, i);
         }
     }

@@ -7,12 +7,11 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LetsAgree.IOC.Test.NetFW
+namespace LetsAgree.IOC.Example
 {
     // generic paramaters on classes cannot be inferred, but can on methods.  Could use static creator pattern.
     // however, the compiler has been unable to resolve types anyway since I made IConfig less strict (vary on each IxxxRegistration)
-    [TestFixture]
-    public class UseTest
+    public static class Program
     {
         public abstract class MyLibrary
         {
@@ -74,8 +73,7 @@ namespace LetsAgree.IOC.Test.NetFW
             }
         }
 
-        [Test]
-        public void Use()
+        public static void Main()
         {
             // Can we avoid specifying the specs? Thats annoying for a user.  (one way was to not allow different C and T for each R)
             Assert.Throws<NotImplementedException>(() => MyLibrary.Create<IRegistrySpec, IConfigSpec, IConfigSpec, IContainerSpec>(() => new MyRegistry()));

@@ -19,8 +19,16 @@ namespace LetsAgree.IOC.Extensions
             {
                 if (dstack.Value.First().madeDecorator) throw new InvalidOperationException("root cant be decorator");
                 if (dstack.Value.Skip(1).Any(x => !x.madeDecorator)) throw new InvalidOperationException("all following root must be decorator");
-                var decStack = new Stack<DecTypeIocInfo>(dstack.Value.Skip(1).Select(x => new DecTypeIocInfo(dstack.Key, x.service())));
-                registerService(dstack.Key, () => RecusrivelyConstructStack(dstack.Value.First().service(), decStack, iocCreate));
+
+                // call do nit regiuster new
+                var root = dstack.Value.First().service();
+                var decorators = dstack.Value.Skip(1).Select(x => x.service()).ToArray();
+
+                // regenerate a stack each time.. (e.g. what if not a singleton?)
+                Func<Stack<DecTypeIocInfo>> decStack = () => new Stack<DecTypeIocInfo>(decorators.Select(x => new DecTypeIocInfo(dstack.Key, x)));
+
+                // registring construction like this
+                registerService(dstack.Key, () => RecusrivelyConstructStack(root, decStack(), iocCreate));
             }
         }
 

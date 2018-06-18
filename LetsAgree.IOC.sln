@@ -7,13 +7,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC", "LetsAgree.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC.Extensions", "LetsAgree.IOC.Extensions\LetsAgree.IOC.Extensions.csproj", "{84F81CD7-4E9E-4D7C-8585-9B1A07E7FFF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.Test.NetFW", "LetsAgree.IOC.Test.NetFW\LetsAgree.IOC.Test.NetFW.csproj", "{028BD45B-4C80-4A79-BEDB-59834E44A29E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.Example", "LetsAgree.IOC.Test.NetFW\LetsAgree.IOC.Example.csproj", "{028BD45B-4C80-4A79-BEDB-59834E44A29E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC.StructureMapShim", "LetsAgree.IOC.StructureMapShim\LetsAgree.IOC.StructureMapShim.csproj", "{7514B9D0-B515-4269-8FDA-C1A56F269996}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.MvxSimpleShim", "LetsAgree.IOC.MvxSimpleShim\LetsAgree.IOC.MvxSimpleShim.csproj", "{C508DBBF-4465-4DA3-AFE4-030FB212B8F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC.MvxSimpleShim", "LetsAgree.IOC.MvxSimpleShim\LetsAgree.IOC.MvxSimpleShim.csproj", "{C508DBBF-4465-4DA3-AFE4-030FB212B8F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.Extensions.MvxSimpleShim", "LetsAgree.IOC.Extensions.MvxSimpleShim\LetsAgree.IOC.Extensions.MvxSimpleShim.csproj", "{96185787-A941-498D-A4FF-12D3C6C43F70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC.Extensions.MvxSimpleShim", "LetsAgree.IOC.Extensions.MvxSimpleShim\LetsAgree.IOC.Extensions.MvxSimpleShim.csproj", "{96185787-A941-498D-A4FF-12D3C6C43F70}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.Extensions.MvxSimpleShim.Test", "LetsAgree.IOC.Extensions.MvxSimpleShim.Test\LetsAgree.IOC.Extensions.MvxSimpleShim.Test.csproj", "{49E0580A-02ED-45D7-931A-320CA1E85ACB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{96185787-A941-498D-A4FF-12D3C6C43F70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96185787-A941-498D-A4FF-12D3C6C43F70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96185787-A941-498D-A4FF-12D3C6C43F70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49E0580A-02ED-45D7-931A-320CA1E85ACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49E0580A-02ED-45D7-931A-320CA1E85ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49E0580A-02ED-45D7-931A-320CA1E85ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49E0580A-02ED-45D7-931A-320CA1E85ACB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
