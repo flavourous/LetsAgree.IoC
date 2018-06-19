@@ -7,13 +7,14 @@ namespace LetsAgree.IOC.Extensions
 {
     // TODO: Can this be written in terms of LetsAgree.IOC interfaces alone, as a registry decorator or something?
     public delegate void MakeDecoratorCallback();
-    public delegate Type DoNotRegisterCallback();
+    public delegate Type GetServiceCallback(bool skipRegistration);
     public delegate void RegisterServiceDelegate(Type service, Func<object> creator);
-    public delegate Object CreateWithIocDelegate(Type service);
+    public delegate Object ResolveDelegate(Type service);
+    public delegate Object IocConstructDelegate(Type service);
     public class DecoratingRegistryHelper
     {
         // run extra registrations (that delegate to the container) before creating the container.
-        public void AnylyzeAndRegisterDecorators(RegisterServiceDelegate registerService, CreateWithIocDelegate iocCreate)
+        public void AnylyzeAndRegisterDecorators(RegisterServiceDelegate registerService, ResolveDelegate resolve, IocConstructDelegate create)
         {
             foreach(var dstack in serviceStacks.Where(x=>x.Value.Any(y=>y.madeDecorator)))
             {
@@ -21,14 +22,14 @@ namespace LetsAgree.IOC.Extensions
                 if (dstack.Value.Skip(1).Any(x => !x.madeDecorator)) throw new InvalidOperationException("all following root must be decorator");
 
                 // call do nit regiuster new
-                var root = dstack.Value.First().service();
-                var decorators = dstack.Value.Skip(1).Select(x => x.service()).ToArray();
+                var root = dstack.Value.First().service(true);
+                var decorators = dstack.Value.Skip(1).Select(x => x.service(true)).ToArray();
 
                 // regenerate a stack each time.. (e.g. what if not a singleton?)
                 Func<Stack<DecTypeIocInfo>> decStack = () => new Stack<DecTypeIocInfo>(decorators.Select(x => new DecTypeIocInfo(dstack.Key, x)));
 
                 // registring construction like this
-                registerService(dstack.Key, () => RecusrivelyConstructStack(root, decStack(), iocCreate));
+                registerService(dstack.Key, () => RecusrivelyConstructStack(root, decStack(), resolve, create));
             }
         }
 
@@ -59,21 +60,21 @@ namespace LetsAgree.IOC.Extensions
             public Object Construct(object[] args) => constructor.Invoke(args);
         }
 
-        Object RecusrivelyConstructStack(Type rootDecorated, Stack<DecTypeIocInfo> sStack, CreateWithIocDelegate iocCreate)
+        Object RecusrivelyConstructStack(Type rootDecorated, Stack<DecTypeIocInfo> sStack, ResolveDelegate resolve, IocConstructDelegate create)
         {
             if (sStack.Count == 0)
-                return iocCreate(rootDecorated);
+                return create(rootDecorated);
             var cs = sStack.Pop();
-            Func<Object> nextLevel = () => RecusrivelyConstructStack(rootDecorated, sStack, iocCreate);
-            var args = cs.parameters.Select(x => x == cs.serviceType ? nextLevel() : iocCreate(x));
+            Func<Object> nextLevel = () => RecusrivelyConstructStack(rootDecorated, sStack, resolve, create);
+            var args = cs.parameters.Select(x => x == cs.serviceType ? nextLevel() : resolve(x));
             return cs.Construct(args.ToArray());
         }
 
-        class ssArg { public DoNotRegisterCallback service; public bool madeDecorator; }
+        class ssArg { public GetServiceCallback service; public bool madeDecorator; }
         readonly Dictionary<Type, List<ssArg>> serviceStacks = new Dictionary<Type, List<ssArg>>();
 
         // nees to know the decorations and roots. top decorator will be registered, so root cannot be.
-        public MakeDecoratorCallback ServiceRegisteredCallback(Type t, DoNotRegisterCallback c)
+        public MakeDecoratorCallback ServiceRegisteredCallback(Type t, GetServiceCallback c)
         {
             if (!serviceStacks.ContainsKey(t)) serviceStacks[t] = new List<ssArg>();
             var ssa = new ssArg { service = c };

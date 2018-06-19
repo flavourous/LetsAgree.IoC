@@ -13,6 +13,11 @@ namespace LetsAgree.IOC
     {
         void AsDecorator();
     }
+    public interface IFluentSelectionConfig<out ContainedConfig> : INoConfig
+        where ContainedConfig : IFluentSelectionConfig<ContainedConfig>
+    {
+        ContainedConfig EndingWith(String name);
+    }
 
     public interface IContainerGeneration<out Container>
     {

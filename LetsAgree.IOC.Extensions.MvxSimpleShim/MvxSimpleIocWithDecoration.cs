@@ -10,10 +10,11 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
 {
     // TODO: this wouldnt be needed if IOC.Extensions worked with the IOC interfaces alone
     public interface IMvxSimpleDecoratingConfig : ISingletonConfig, IDecoratorConfig { }
+    public interface IMvxScanningConfig : IFluentSelectionConfig<IMvxScanningConfig>, IMvxSimpleDecoratingConfig { }
     public interface IMvxSimpleDecoratingRegistry :
         IDynamicRegistration<IMvxSimpleDecoratingConfig>,
         IGenericRegistration<IMvxSimpleDecoratingConfig>,
-        IScanningRegistraction<IMvxSimpleDecoratingConfig>,
+        IScanningRegistraction<IMvxScanningConfig>,
         IGenericLocatorRegistration<IMvxSimpleConfig>,
         IContainerGeneration<IMvxSimpleContainer>
     { }
@@ -31,9 +32,11 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
 
         public IMvxSimpleContainer GenerateContainer()
         {
-            drh.AnylyzeAndRegisterDecorators((s, i) => basic.Register(s, i), Mvx.IocConstruct);
+            var proxyContainer = new ProxyContainer();
+            drh.AnylyzeAndRegisterDecorators((s, i) => basic.Register(s, i), proxyContainer.Resolve, Mvx.IocConstruct);
             while (ss.Count > 0) ss.Dequeue().Process();
-            return new ProxyContainer { mc = basic.GenerateContainer() };
+            proxyContainer.mc = basic.GenerateContainer();
+            return proxyContainer;
         }
 
         readonly PPQueue<FakedConfig> ss = new PPQueue<FakedConfig>();
@@ -41,9 +44,9 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
         public IMvxSimpleDecoratingConfig Register(Type service, Type impl)
         {
             bool donothing = false;
-            var makeDecorator = drh.ServiceRegisteredCallback(service, () =>
+            var makeDecorator = drh.ServiceRegisteredCallback(service, skipRegistration =>
             {
-                donothing = true;
+                donothing = skipRegistration;
                 return impl;
             });
             return ss.PP(new FakedConfig((s, d) =>
@@ -63,9 +66,9 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
         IMvxSimpleDecoratingConfig IGenericRegistration<IMvxSimpleDecoratingConfig>.Register<Service, Implimentation>()
         {
             bool donothing = false;
-            var makeDecorator = drh.ServiceRegisteredCallback(typeof(Service), () =>
+            var makeDecorator = drh.ServiceRegisteredCallback(typeof(Service), skipRegistration =>
             {
-                donothing = true;
+                donothing = skipRegistration;
                 return typeof(Implimentation);
             });
             return ss.PP(new FakedConfig((s, d) =>
@@ -76,29 +79,49 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
             }, () => makeDecorator()));
         }
 
-        public IMvxSimpleDecoratingConfig RegisterAssembly(Assembly a)
+        public IMvxScanningConfig RegisterAssembly(Assembly a)
         {
-            var scanned = new HashSet<MvxTypeExtensions.ServiceTypeAndImplementationTypePair>
-                (creatableTypes(a).EndingWith("Service").AsInterfaces());
-            var decorateAll = scanned.SelectMany(p => p.ServiceTypes.Select(s =>
-                                  drh.ServiceRegisteredCallback(s, () =>
-                                  {
-                                      p.ServiceTypes.Remove(s);
-                                      return p.ImplementationType;
-                                  })
-                              )).ToArray();
-            // It's gonna remove all service types if AsDecorator is called so no worries!
-            return ss.PP(new FakedConfig((s, d) =>
+            // pls use classes not lambda closure hax
+            FakedScanningConfig config = null;
+            config = new FakedScanningConfig((s, d) =>
             {
+                IEnumerable<Type> filtering = creatableTypes(a);
+                foreach (var c in config.ending)
+                    filtering = filtering.EndingWith(c);
+                var scanned =  new HashSet<MvxTypeExtensions.ServiceTypeAndImplementationTypePair>
+                (filtering.AsInterfaces());
+                // TODO: this doesnt actually work with the other registrar calls 
+                if (d) foreach (var act in scanned.SelectMany(p => p.ServiceTypes.Select(v =>
+                                         drh.ServiceRegisteredCallback(v, skipRegistration =>
+                                         {
+                                             if (skipRegistration)
+                                                 p.ServiceTypes.Remove(v);
+                                             return p.ImplementationType;
+                                         })
+                                     )))
+                        act();
                 if (s) scanned.RegisterAsLazySingleton();
                 else scanned.RegisterAsDynamic();
-            }, () =>
-            {
-                foreach (var act in decorateAll)
-                    act();
-            }));
+            }, delegate { /* we'll just find out later ok (no not ok, not if you want to play with the TODO above) */ });
+            return (IMvxScanningConfig)ss.PP(config);
         }
     }
+
+    class FakedScanningConfig : FakedConfig, IMvxScanningConfig
+    {
+        public FakedScanningConfig(Action<bool, bool> process, Action makeDecorator)
+            :base(process, makeDecorator)
+        {
+        }
+
+        public readonly List<String> ending = new List<string>();
+        public IMvxScanningConfig EndingWith(string name)
+        {
+            ending.Add(name);
+            return this;
+        }
+    }
+
     class FakedConfig : IMvxSimpleDecoratingConfig
     {
         public void Process() => process(singleton, decorator);
