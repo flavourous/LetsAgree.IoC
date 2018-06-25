@@ -18,16 +18,16 @@ namespace LetsAgree.IOC.Example
             static ICustomTypeProvider myIOCConstructedClassHonestly;
             public static MyLibrary Create<R, CBasic, CGen, T>(Func<R> c)
                 where R : IDynamicRegistration<CBasic>, IGenericRegistration<CGen>, IContainerGeneration<T>
-                where CBasic : ISingletonConfig
-                where CGen : ISingletonConfig, IDecoratorConfig
+                where CBasic : ISingletonConfig<INoConfig>
+                where CGen : ISingletonConfig<INoConfig>, IDecoratorConfig<INoConfig>
                 where T : IBasicContainer, IGenericContainer
             {
                 return new MYDiClass<R, CBasic, CGen, T>(c);
             }
             class MYDiClass<R, CBasic, CGen, T> : MyLibrary
                 where R : IDynamicRegistration<CBasic>, IGenericRegistration<CGen>, IContainerGeneration<T>
-                where CBasic : ISingletonConfig
-                where CGen : ISingletonConfig, IDecoratorConfig
+                where CBasic : ISingletonConfig<INoConfig>
+                where CGen : ISingletonConfig<INoConfig>, IDecoratorConfig<INoConfig>
                 where T : IBasicContainer, IGenericContainer
             {
                 public MYDiClass(Func<R> creator)
@@ -50,14 +50,14 @@ namespace LetsAgree.IOC.Example
             // (generic paramaters on classes cannot be inferred)
             public static MyLibrary Create<R, C, T>(Func<R> c)
                 where R : IDynamicRegistration<C>, IGenericRegistration<C>, IContainerGeneration<T>
-                where C : ISingletonConfig, IDecoratorConfig
+                where C : ISingletonConfig<INoConfig>, IDecoratorConfig<INoConfig>
                 where T : IBasicContainer, IGenericContainer
             {
                 return new MYDiClass<R, C, T>(c);
             }
             class MYDiClass<R, C, T> : MyLibrary
                 where R : IDynamicRegistration<C>, IGenericRegistration<C>, IContainerGeneration<T>
-                where C : ISingletonConfig, IDecoratorConfig
+                where C : ISingletonConfig<INoConfig>, IDecoratorConfig<INoConfig>
                 where T : IBasicContainer, IGenericContainer
             {
                 public MYDiClass(Func<R> creator)
@@ -82,8 +82,8 @@ namespace LetsAgree.IOC.Example
 
         // Implimentation capabilities
         public interface IConfigSpec : 
-            ISingletonConfig, 
-            IDecoratorConfig
+            ISingletonConfig<INoConfig>, 
+            IDecoratorConfig<INoConfig>
         {
         }
         public interface IContainerSpec :
@@ -152,12 +152,12 @@ namespace LetsAgree.IOC.Example
         }
         class MyConfig : IConfigSpec
         {
-            public void AsDecorator()
+            public INoConfig AsDecorator()
             {
                 throw new NotImplementedException();
             }
 
-            public void AsSingleton()
+            public INoConfig AsSingleton()
             {
                 throw new NotImplementedException();
             }

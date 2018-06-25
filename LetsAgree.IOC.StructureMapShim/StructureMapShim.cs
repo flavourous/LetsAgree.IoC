@@ -1,6 +1,8 @@
 ﻿using StructureMap;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace LetsAgree.IOC.StructureMapShim
@@ -9,21 +11,20 @@ namespace LetsAgree.IOC.StructureMapShim
     public interface IContainerSpec : 
                                       IBasicContainer, 
                                       IGenericContainer { }
-    public interface IConfigSpec : 
-                                   ISingletonConfig, 
-                                   IDecoratorConfig { }
-    public interface ILocatorConfigSpec : 
-                                          ISingletonConfig { }
+    public interface IConfigSpec :
+                                   ISingletonConfig<ICollectionConfig<INoConfig>>,
+                                   ICollectionConfig<ISingletonConfig<INoConfig>>,
+                                   IDecoratorConfig<INoConfig> { }
+    public interface ILocatorConfigSpec :
+                                   ISingletonConfig<ICollectionConfig<INoConfig>>,
+                                   ICollectionConfig<ISingletonConfig<INoConfig>> { }
     public interface IRegSpec :         
                                 IContainerGeneration<IContainerSpec>,
                                 IDynamicRegistration<IConfigSpec>, 
                                 IGenericRegistration<IConfigSpec>, 
                                 IDynamicLocatorRegistration<ILocatorConfigSpec>,
                                 IGenericLocatorRegistration<ILocatorConfigSpec>,
-                                IScanningRegistraction<INoConfig>
-
-    {
-    }
+                                IScanningRegistration<INoConfig> { }
 
     // Shims to StructureMap
     public class SMRegistry : IRegSpec
@@ -33,12 +34,21 @@ namespace LetsAgree.IOC.StructureMapShim
 
         public IContainerSpec GenerateContainer()
         {
-            foreach (var tr in toRegister) tr.Register(registry);
+            foreach (var tr in toRegister)
+                tr.Register(registry);
+
+            foreach (var tp in ToCollect)
+                Registrars[tp.Key](registry);
+
             return new SMContainer(registry);
         }
 
+        Dictionary<Type, List<Func<IContext, Object>>> ToCollect = new Dictionary<Type, List<Func<IContext, object>>>();
+        Dictionary<Type, Action<Registry>> Registrars = new Dictionary<Type, Action<Registry>>();
         SMConfig Push(SMConfig s)
         {
+            s.ToCollect = ToCollect;
+            s.Registrars = Registrars;
             toRegister.Push(s);
             return s;
         }
@@ -63,6 +73,18 @@ namespace LetsAgree.IOC.StructureMapShim
 
     class SMConfig : IConfigSpec, ILocatorConfigSpec
     {
+        public Dictionary<Type, List<Func<IContext, Object>>> ToCollect;
+        public Dictionary<Type, Action<Registry>> Registrars;
+        public void AddCollect<T>(Func<IContext, Object> c)
+        {
+            var t = typeof(T);
+            if (!ToCollect.ContainsKey(t))
+                ToCollect[t] = new List<Func<IContext, Object>>();
+            ToCollect[t].Add(c);
+            Registrars[t] = reg => reg.For(t.MakeArrayType())
+                                      .Use(con => ToCollect[t].Select(x => (T)x(con)).ToArray())
+                                      .Singleton();
+        }
         readonly IRegistrar registrar;
         private SMConfig(IRegistrar registrar) => this.registrar = registrar;
         public static SMConfig Create(Type service, Type impl)
@@ -71,7 +93,7 @@ namespace LetsAgree.IOC.StructureMapShim
             var instance = Activator.CreateInstance(closed) as IRegistrar;
             return new SMConfig(instance);
         }
-        public static SMConfig Create<S, I>() where I : S
+        public static SMConfig Create<S, I>() where I : class, S
         {
             return new SMConfig(new TypedRegistrar<S, I>());
         }
@@ -85,22 +107,32 @@ namespace LetsAgree.IOC.StructureMapShim
         {
             return new SMConfig(new LocateRegistrar<S>(locator));
         }
-        bool decorate, singleton;
-        public void AsDecorator() => decorate = true;
-        public void AsSingleton() => singleton = true;
+        bool decorate, singleton, collection;
+        public INoConfig AsDecorator()
+        {
+            decorate = true;
+            return null;
+        }
+        public ICollectionConfig<INoConfig> AsSingleton()
+        {
+            singleton = true;
+            return this;
+        }
+        public ISingletonConfig<INoConfig> AsCollection()
+        {
+            collection = true;
+            return this;
+        }
         public void Register(Registry reg) => registrar.Register(reg, this);
         interface IRegistrar { void Register(Registry reg, SMConfig c); }
-        class TypedRegistrar<S, I> : IRegistrar where I : S
+        class TypedRegistrar<S, I> : IRegistrar where I : class, S
         {
             public void Register(Registry reg, SMConfig c)
             {
                 var fors = reg.For<S>();
-                if (c.decorate) fors.DecorateAllWith<I>();
-                else
-                {
-                    var use = fors.Use<I>();
-                    if (c.singleton) use.Singleton();
-                }
+                var next = c.decorate ? fors.DecorateAllWith<I>() : fors.Use<I>();
+                if (c.singleton) next=next.Singleton();
+                if (c.collection) c.AddCollect<S>(x => x.GetInstance<I>());
             }
         }
         class LocateRegistrar<S> : IRegistrar
@@ -117,6 +149,7 @@ namespace LetsAgree.IOC.StructureMapShim
                     var use = fors.Use(x => locator());
                     if (c.singleton) use.Singleton();
                 }
+                if (c.collection) c.AddCollect<S>(x => locator());
             }
         }
     }

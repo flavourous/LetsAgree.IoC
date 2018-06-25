@@ -11,7 +11,12 @@ namespace LetsAgree.IOC.MvxSimpleShim
                                       IGenericContainer
     { }
     public interface IMvxSimpleConfig :
-                                   ISingletonConfig
+                                   ISingletonConfig<INoConfig>
+    { }
+
+    public interface IMvxScanningConfig :
+                                   ISingletonConfig<INoConfig>,
+                                   ISelectionConfig<IMvxScanningConfig>
     { }
     public interface IMvxSimpleRegistry :
                                 IContainerGeneration<IMvxSimpleContainer>,
@@ -19,7 +24,7 @@ namespace LetsAgree.IOC.MvxSimpleShim
                                 IGenericRegistration<IMvxSimpleConfig>,
                                 IDynamicLocatorRegistration<IMvxSimpleConfig>,
                                 IGenericLocatorRegistration<IMvxSimpleConfig>,
-                                IScanningRegistraction<IMvxSimpleConfig>
+                                IScanningRegistration<IMvxScanningConfig>
     { }
     public class PPQueue<T> : Queue<T> { public T PP(T item) { Enqueue(item); return item; } }
     public class MvxRegistry : IMvxSimpleRegistry
@@ -52,19 +57,30 @@ namespace LetsAgree.IOC.MvxSimpleShim
             where Service : class 
             => ss.PP(new MvxLocatorConfig<Service>(implimentation));
 
-        public IMvxSimpleConfig RegisterAssembly(Assembly a) 
-            => ss.PP(new MvxScannerConfig(CreatableTypes(a).EndingWith("Service")));
+        public IMvxScanningConfig RegisterAssembly(Assembly a) 
+            => (MvxScannerConfig)ss.PP(new MvxScannerConfig(CreatableTypes(a)));
     }
     abstract class MvxConfig : IMvxSimpleConfig
     {
         public abstract void Register();
         protected bool singleton = false;
-        public void AsSingleton() => singleton = true;
+        public INoConfig AsSingleton()
+        {
+            singleton = true;
+            return null;
+        }
     }
-    class MvxScannerConfig : MvxConfig 
+    class MvxScannerConfig : MvxConfig, IMvxScanningConfig
     {
-        readonly IEnumerable<Type> found;
+        private IEnumerable<Type> found;
         public MvxScannerConfig(IEnumerable<Type> found) => this.found = found;
+
+        public IMvxScanningConfig EndingWith(string name)
+        {
+            found = found.EndingWith(name);
+            return this;
+        }
+
         public override void Register()
         {
             if (singleton) found.AsInterfaces().RegisterAsLazySingleton();

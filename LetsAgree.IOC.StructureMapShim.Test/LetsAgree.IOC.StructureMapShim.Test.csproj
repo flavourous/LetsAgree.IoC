@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{49E0580A-02ED-45D7-931A-320CA1E85ACB}</ProjectGuid>
+    <ProjectGuid>{A3CAC189-4C62-4E19-A875-4D02397058AA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LetsAgree.IOC.Extensions.MvxSimpleShim.Test</RootNamespace>
-    <AssemblyName>LetsAgree.IOC.Extensions.MvxSimpleShim.Test</AssemblyName>
+    <RootNamespace>LetsAgree.IOC.StructureMapShim.Test</RootNamespace>
+    <AssemblyName>LetsAgree.IOC.StructureMapShim.Test</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -33,23 +33,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MvvmCross.Core, Version=5.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MvvmCross.Core.5.6.3\lib\net45\MvvmCross.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="MvvmCross.Platform, Version=5.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MvvmCross.Platform.5.6.3\lib\net45\MvvmCross.Platform.dll</HintPath>
-    </Reference>
-    <Reference Include="MvvmCross.Platform.Wpf, Version=5.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MvvmCross.Platform.5.6.3\lib\net45\MvvmCross.Platform.Wpf.dll</HintPath>
-    </Reference>
-    <Reference Include="MvvmCross.Test.Core, Version=5.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MvvmCross.Tests.5.6.3\lib\portable45-net45+win8+wp8+wpa81\MvvmCross.Test.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="MvvmCross.Wpf, Version=5.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MvvmCross.Core.5.6.3\lib\net45\MvvmCross.Wpf.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework, Version=3.9.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="StructureMap, Version=4.4.2.472, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StructureMap.4.4.2\lib\net45\StructureMap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,20 +49,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExtensionTests.cs" />
+    <Compile Include="Collections.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LetsAgree.IOC.Extensions.MvxSimpleShim\LetsAgree.IOC.Extensions.MvxSimpleShim.csproj">
-      <Project>{96185787-a941-498d-a4ff-12d3c6c43f70}</Project>
-      <Name>LetsAgree.IOC.Extensions.MvxSimpleShim</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LetsAgree.IOC.MvxSimpleShim\LetsAgree.IOC.MvxSimpleShim.csproj">
-      <Project>{C508DBBF-4465-4DA3-AFE4-030FB212B8F1}</Project>
-      <Name>LetsAgree.IOC.MvxSimpleShim</Name>
+    <ProjectReference Include="..\LetsAgree.IOC.StructureMapShim\LetsAgree.IOC.StructureMapShim.csproj">
+      <Project>{7514b9d0-b515-4269-8fda-c1a56f269996}</Project>
+      <Name>LetsAgree.IOC.StructureMapShim</Name>
     </ProjectReference>
     <ProjectReference Include="..\LetsAgree.IOC\LetsAgree.IOC.csproj">
       <Project>{93C5FCA7-F8D1-4AAB-B2F7-DA04C1142E73}</Project>
