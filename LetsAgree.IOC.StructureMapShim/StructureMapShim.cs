@@ -1,4 +1,5 @@
-﻿using StructureMap;
+﻿using LetsAgree.IOC.Extensions;
+using StructureMap;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,10 @@ namespace LetsAgree.IOC.StructureMapShim
     public interface IContainerSpec : 
                                       IBasicContainer, 
                                       IGenericContainer { }
+    public interface IDCConfig<out c> : IDecoratorConfig<c>, ICollectionConfig<c> { }
     public interface IConfigSpec :
-                                   ISingletonConfig<ICollectionConfig<INoConfig>>,
-                                   ICollectionConfig<ISingletonConfig<INoConfig>>,
-                                   IDecoratorConfig<INoConfig> { }
+                                   ISingletonConfig<IDCConfig<INoConfig>>,
+                                   IDCConfig<ISingletonConfig<INoConfig>> { }
     public interface ILocatorConfigSpec :
                                    ISingletonConfig<ICollectionConfig<INoConfig>>,
                                    ICollectionConfig<ISingletonConfig<INoConfig>> { }
@@ -108,12 +109,13 @@ namespace LetsAgree.IOC.StructureMapShim
             return new SMConfig(new LocateRegistrar<S>(locator));
         }
         bool decorate, singleton, collection;
-        public INoConfig AsDecorator()
+        public ISingletonConfig<INoConfig> AsDecorator()
         {
             decorate = true;
             return null;
         }
-        public ICollectionConfig<INoConfig> AsSingleton()
+        ICollectionConfig<INoConfig> ISingletonConfig<ICollectionConfig<INoConfig>>.AsSingleton() => AsSingleton();
+        public IDCConfig<INoConfig> AsSingleton()
         {
             singleton = true;
             return this;
@@ -124,15 +126,48 @@ namespace LetsAgree.IOC.StructureMapShim
             return this;
         }
         public void Register(Registry reg) => registrar.Register(reg, this);
+
         interface IRegistrar { void Register(Registry reg, SMConfig c); }
         class TypedRegistrar<S, I> : IRegistrar where I : class, S
         {
+            readonly ResolveBuilder builder;
+            public TypedRegistrar()
+            {
+                builder = new ResolveBuilder();
+                builder.UseType(typeof(I));
+                builder.UseConstructor(x => true);
+            }
+
             public void Register(Registry reg, SMConfig c)
             {
-                var fors = reg.For<S>();
-                var next = c.decorate ? fors.DecorateAllWith<I>() : fors.Use<I>();
-                if (c.singleton) next=next.Singleton();
-                if (c.collection) c.AddCollect<S>(x => x.GetInstance<I>());
+                if (c.collection)
+                {
+                    S singleton = default(S);
+                    bool made = false;
+                    c.AddCollect<S>(x =>
+                    {
+                        if (c.singleton)
+                        {
+                            if (made) return singleton;
+                            builder.UseResolver(x.GetInstance);
+                            singleton = (I)builder.Build(); // because we never registered I
+                            made = true;
+                            return singleton;
+                        }
+                        else
+                        {
+                            builder.UseResolver(x.GetInstance);
+                            return (I)builder.Build();
+                        }
+
+                    });
+                }
+                else
+                {
+                    var fors = reg.For<S>();
+                    var next = c.decorate ? fors.DecorateAllWith<I>() : fors.Use<I>();
+                    if (c.singleton) next = next.Singleton();
+                }
             }
         }
         class LocateRegistrar<S> : IRegistrar
@@ -143,13 +178,16 @@ namespace LetsAgree.IOC.StructureMapShim
             public void Register(Registry reg, SMConfig c)
             {
                 var fors = reg.For<S>();
-                if (c.decorate) throw new NotImplementedException("no thanks");
+                if (c.decorate) throw new NotImplementedException("Can't decorate a locator!");
+                if (c.collection)
+                {
+                    c.AddCollect<S>(x => locator());
+                }
                 else
                 {
                     var use = fors.Use(x => locator());
                     if (c.singleton) use.Singleton();
                 }
-                if (c.collection) c.AddCollect<S>(x => locator());
             }
         }
     }

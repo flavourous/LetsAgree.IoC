@@ -33,7 +33,7 @@ namespace LetsAgree.IOC
     public interface ICollectionConfig<out Continue> : INoConfig
     {
         /// <summary>
-        /// This will (only) be resolved as I[]
+        /// This will be resolved in I[]
         /// </summary>
         /// <returns></returns>
         Continue AsCollection();

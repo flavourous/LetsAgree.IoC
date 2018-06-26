@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace LetsAgree.IOC.Extensions
 {
@@ -35,29 +34,20 @@ namespace LetsAgree.IOC.Extensions
 
         class DecTypeIocInfo
         {
-            readonly ConstructorInfo constructor;
-            public readonly Type[] parameters;
+            readonly ResolveBuilder constructBuilder = new ResolveBuilder();
+            //public readonly Type[] parameters;
             public readonly Type serviceType;
             public DecTypeIocInfo(Type t, Type decoratorService)
             {
                 serviceType = t;
-                var actrs = decoratorService.GetConstructors()
-                             .ToArray();
-                var ctrs = actrs.Select(x => new { c = x, p = x.GetParameters().Select(y => y.ParameterType).ToArray() })
-                                .Where(x=>x.p.Contains(t))
-                                .ToArray();
-                if (ctrs.Length > 1) throw new InvalidOperationException("Multiple public constructors have the decorator service");
-                if (ctrs.Length == 0)
-                {
-                    var ex = new InvalidOperationException($"No public constructors of {decoratorService.Name} have the decorator service. ({actrs.Length} total)");
-                    ex.Data["implimentation"] = decoratorService;
-                    ex.Data["interface"] = t;
-                    throw ex;
-                }
-                constructor = ctrs.Single().c;
-                parameters = ctrs.Single().p;
+                constructBuilder.UseType(decoratorService);
+                constructBuilder.UseConstructor(x => x.Contains(t));
             }
-            public Object Construct(object[] args) => constructor.Invoke(args);
+            public Object Construct(Func<Type,Object> resolveScope)
+            {
+                constructBuilder.UseResolver(resolveScope);
+                return constructBuilder.Build();
+            }
         }
 
         Object RecusrivelyConstructStack(Type rootDecorated, Stack<DecTypeIocInfo> sStack, ResolveDelegate resolve, IocConstructDelegate create)
@@ -66,8 +56,7 @@ namespace LetsAgree.IOC.Extensions
                 return create(rootDecorated);
             var cs = sStack.Pop();
             Func<Object> nextLevel = () => RecusrivelyConstructStack(rootDecorated, sStack, resolve, create);
-            var args = cs.parameters.Select(x => x == cs.serviceType ? nextLevel() : resolve(x));
-            return cs.Construct(args.ToArray());
+            return cs.Construct(x => x == cs.serviceType ? nextLevel() : resolve(x));
         }
 
         class ssArg { public GetServiceCallback service; public bool madeDecorator; }

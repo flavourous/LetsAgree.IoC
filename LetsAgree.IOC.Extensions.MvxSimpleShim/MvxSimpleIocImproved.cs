@@ -92,16 +92,12 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
             // Types registered this way arent decoratable
             return ss.PP(new FakedConfig((s, d, c) =>
             {
-                Type service = typeof(Service);
+                if (s) Mvx.LazyConstructAndRegisterSingleton(implimentation);
+                else Mvx.RegisterType(implimentation);
                 if (c)
                 {
                     Lazy<Service> singleton = new Lazy<Service>(implimentation);
-                    AddCollectable<Service>(s ? () => singleton.Value : implimentation);
-                }
-                else
-                {
-                    var reg = basic.Register<Service>(implimentation);
-                    if (s) reg.AsSingleton();
+                    AddCollectable(s ? () => singleton.Value : implimentation);
                 }
             }, delegate { }));
         }
