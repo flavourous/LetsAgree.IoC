@@ -1,4 +1,5 @@
-﻿using MvvmCross.Platform;
+﻿using LetsAgree.IOC.MvxSimpleShim;
+using MvvmCross.Platform;
 using MvvmCross.Test.Core;
 using NUnit.Framework;
 using System;
@@ -60,6 +61,29 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim.Test
                 var c = reg.GenerateContainer();
                 var all = c.Resolve<ITesti[]>();
                 Assert.AreEqual(2, all.Length);
+            }
+        }
+       
+        class Root<C, L, R, N>
+            where C : ISingletonConfig<C>, IDecoratorConfig<C>, ICollectionConfig<C>
+            where L : ISingletonConfig<L>, ICollectionConfig<L>
+            where N : IBasicContainer
+            where R : IGenericRegistration<C>, IGenericLocatorRegistration<L>
+        {
+            public static void Compose(R registry)
+            {
+                // YAY
+            }
+        }
+
+        [Test]
+        public void TestComposition()
+        {
+            base.Setup();
+            using (var registryScope = new MvxSimpleIocImprovedCreator(a => a.GetTypes().Where(x => x.GetConstructors().Any())))
+            {
+                var reg = registryScope.Registry;
+                Root<IMvxImprovedConfig, IMvxImprovedLocatorConfig, IMvxImprovedRegistry, IMvxSimpleContainer>.Compose(reg);
             }
         }
     }

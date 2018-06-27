@@ -12,13 +12,15 @@ namespace LetsAgree.IOC.StructureMapShim
     public interface IContainerSpec : 
                                       IBasicContainer, 
                                       IGenericContainer { }
-    public interface IDCConfig<out c> : IDecoratorConfig<c>, ICollectionConfig<c> { }
     public interface IConfigSpec :
-                                   ISingletonConfig<IDCConfig<INoConfig>>,
-                                   IDCConfig<ISingletonConfig<INoConfig>> { }
+                                   IDecoratorConfig<IConfigSpec>,
+                                   ICollectionConfig<IConfigSpec>,
+                                   ISingletonConfig<IConfigSpec>
+                                    { }
     public interface ILocatorConfigSpec :
-                                   ISingletonConfig<ICollectionConfig<INoConfig>>,
-                                   ICollectionConfig<ISingletonConfig<INoConfig>> { }
+                                   ICollectionConfig<ILocatorConfigSpec>,
+                                   ISingletonConfig<ILocatorConfigSpec>
+        { }
     public interface IRegSpec :         
                                 IContainerGeneration<IContainerSpec>,
                                 IDynamicRegistration<IConfigSpec>, 
@@ -109,23 +111,28 @@ namespace LetsAgree.IOC.StructureMapShim
             return new SMConfig(new LocateRegistrar<S>(locator));
         }
         bool decorate, singleton, collection;
-        public ISingletonConfig<INoConfig> AsDecorator()
+        public SMConfig AsDecorator()
         {
             decorate = true;
             return null;
         }
-        ICollectionConfig<INoConfig> ISingletonConfig<ICollectionConfig<INoConfig>>.AsSingleton() => AsSingleton();
-        public IDCConfig<INoConfig> AsSingleton()
+        public SMConfig AsSingleton()
         {
             singleton = true;
             return this;
         }
-        public ISingletonConfig<INoConfig> AsCollection()
+        public SMConfig AsCollection()
         {
             collection = true;
             return this;
         }
         public void Register(Registry reg) => registrar.Register(reg, this);
+
+        IConfigSpec IDecoratorConfig<IConfigSpec>.AsDecorator() => AsDecorator();
+        IConfigSpec ICollectionConfig<IConfigSpec>.AsCollection() => AsCollection();
+        IConfigSpec ISingletonConfig<IConfigSpec>.AsSingleton() => AsSingleton();
+        ILocatorConfigSpec ICollectionConfig<ILocatorConfigSpec>.AsCollection() => AsCollection();
+        ILocatorConfigSpec ISingletonConfig<ILocatorConfigSpec>.AsSingleton() => AsSingleton();
 
         interface IRegistrar { void Register(Registry reg, SMConfig c); }
         class TypedRegistrar<S, I> : IRegistrar where I : class, S

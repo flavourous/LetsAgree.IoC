@@ -9,10 +9,10 @@ using System.Reflection;
 namespace LetsAgree.IOC.Extensions.MvxSimpleShim
 {
     // TODO: this wouldnt be needed if IOC.Extensions worked with the IOC interfaces alone
-    public interface IMvxImprovedDynConfig : ISingletonConfig<ICollectionConfig<INoConfig>>, IDecoratorConfig<INoConfig> { }
-    public interface IMvxImprovedConfig : ISingletonConfig<ICollectionConfig<INoConfig>>, IDecoratorConfig<INoConfig>, ICollectionConfig<ISingletonConfig<INoConfig>> { }
-    public interface IMvxImprovedLocatorConfig : ISingletonConfig<ICollectionConfig<INoConfig>>, ICollectionConfig<ISingletonConfig<INoConfig>> { }
-    public interface IMvxScanningConfig : ISelectionConfig<IMvxScanningConfig>, ISingletonConfig<INoConfig> { }
+    public interface IMvxImprovedDynConfig : ISingletonConfig<IMvxImprovedDynConfig>, IDecoratorConfig<IMvxImprovedDynConfig> { }
+    public interface IMvxImprovedConfig : ISingletonConfig<IMvxImprovedConfig>, IDecoratorConfig<IMvxImprovedConfig>, ICollectionConfig<IMvxImprovedConfig> { }
+    public interface IMvxImprovedLocatorConfig : ISingletonConfig<IMvxImprovedLocatorConfig>, ICollectionConfig<IMvxImprovedLocatorConfig> { }
+    public interface IMvxScanningConfig : ISelectionConfig<IMvxScanningConfig>, ISingletonConfig<IMvxScanningConfig> { }
     public interface IMvxImprovedRegistry :
         IDynamicRegistration<IMvxImprovedDynConfig>,
         IGenericRegistration<IMvxImprovedConfig>,
@@ -169,15 +169,15 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
             return this;
         }
 
-        INoConfig ISingletonConfig<INoConfig>.AsSingleton()
+        public new IMvxScanningConfig AsSingleton()
         {
             base.AsSingleton();
-            return null;
+            return this;
         }
     }
 
     // TODO: The patternless lambda coding in here is getting out of control!
-    class FakedConfig : IMvxImprovedConfig, IMvxImprovedDynConfig, IMvxImprovedLocatorConfig, ICollectionConfig<INoConfig>, ISingletonConfig<INoConfig>
+    class FakedConfig : IMvxImprovedConfig, IMvxImprovedDynConfig, IMvxImprovedLocatorConfig
     {
         public void Process() => process(singleton, decorator, collectable);
         readonly Action<bool, bool, bool> process;
@@ -188,35 +188,31 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
             this.process = process;
         }
         bool decorator, singleton, collectable;
-        public INoConfig AsDecorator()
+        public FakedConfig AsDecorator()
         {
             decorator = true;
             makeDecorator();
-            return null;
+            return this;
         }
-        public ICollectionConfig<INoConfig> AsSingleton()
+        public FakedConfig AsSingleton()
         {
             singleton = true;
             return this;
         }
 
-        public ISingletonConfig<INoConfig> AsCollection()
+        public FakedConfig AsCollection()
         {
             collectable = true;
             return this;
         }
 
-        INoConfig ISingletonConfig<INoConfig>.AsSingleton()
-        {
-            AsSingleton();
-            return null;
-        }
-
-        INoConfig ICollectionConfig<INoConfig>.AsCollection()
-        {
-            AsCollection();
-            return null;
-        }
+        IMvxImprovedConfig ISingletonConfig<IMvxImprovedConfig>.AsSingleton() => AsSingleton();
+        IMvxImprovedConfig IDecoratorConfig<IMvxImprovedConfig>.AsDecorator() => AsDecorator();
+        IMvxImprovedConfig ICollectionConfig<IMvxImprovedConfig>.AsCollection() => AsCollection();
+        IMvxImprovedDynConfig ISingletonConfig<IMvxImprovedDynConfig>.AsSingleton() => AsSingleton();
+        IMvxImprovedDynConfig IDecoratorConfig<IMvxImprovedDynConfig>.AsDecorator() => AsDecorator();
+        IMvxImprovedLocatorConfig ISingletonConfig<IMvxImprovedLocatorConfig>.AsSingleton() => AsSingleton();
+        IMvxImprovedLocatorConfig ICollectionConfig<IMvxImprovedLocatorConfig>.AsCollection() => AsCollection();
     }
     class ProxyContainer : IMvxSimpleContainer
     {
