@@ -48,10 +48,12 @@ namespace LetsAgree.IOC.StructureMapShim
 
         Dictionary<Type, List<Func<IContext, Object>>> ToCollect = new Dictionary<Type, List<Func<IContext, object>>>();
         Dictionary<Type, Action<Registry>> Registrars = new Dictionary<Type, Action<Registry>>();
+        Dictionary<Type, Object> Singletons = new Dictionary<Type, object>();
         SMConfig Push(SMConfig s)
         {
             s.ToCollect = ToCollect;
             s.Registrars = Registrars;
+            s.Singletons = Singletons;
             toRegister.Push(s);
             return s;
         }
@@ -73,11 +75,22 @@ namespace LetsAgree.IOC.StructureMapShim
     }
 
     class NoConfig : INoConfig { }
-
+    // TODO I dont believe I covered all cases of singletons/decorators/collections, some might not be singltons when decorators are involved?
     class SMConfig : IConfigSpec, ILocatorConfigSpec
     {
         public Dictionary<Type, List<Func<IContext, Object>>> ToCollect;
         public Dictionary<Type, Action<Registry>> Registrars;
+        public Dictionary<Type, Object> Singletons;
+        public Object ResolveAsSingleton(Func<Object> create, params Type[] tt)
+        {
+            if (!tt.All(x => Singletons.ContainsKey(x)))
+            {
+                var use = create();
+                foreach (var t in tt)
+                    Singletons[t] = use;
+            }
+            return Singletons[tt.First()];
+        }
         public void AddCollect<T>(Func<IContext, Object> c)
         {
             var t = typeof(T);
@@ -85,7 +98,7 @@ namespace LetsAgree.IOC.StructureMapShim
                 ToCollect[t] = new List<Func<IContext, Object>>();
             ToCollect[t].Add(c);
             Registrars[t] = reg => reg.For(t.MakeArrayType())
-                                      .Use(con => ToCollect[t].Select(x => (T)x(con)).ToArray())
+                                      .Use("Collection Helper", con => ToCollect[t].Select(x => (T)x(con)).ToArray())
                                       .Singleton();
         }
         readonly IRegistrar registrar;
@@ -149,17 +162,15 @@ namespace LetsAgree.IOC.StructureMapShim
             {
                 if (c.collection)
                 {
-                    S singleton = default(S);
-                    bool made = false;
                     c.AddCollect<S>(x =>
                     {
                         if (c.singleton)
                         {
-                            if (made) return singleton;
-                            builder.UseResolver(x.GetInstance);
-                            singleton = (I)builder.Build(); // because we never registered I
-                            made = true;
-                            return singleton;
+                            return c.ResolveAsSingleton(() =>
+                            {
+                                builder.UseResolver(x.GetInstance);
+                                return builder.Build(); // because we never registered I
+                            }, typeof(S), typeof(I));
                         }
                         else
                         {
@@ -172,8 +183,18 @@ namespace LetsAgree.IOC.StructureMapShim
                 else
                 {
                     var fors = reg.For<S>();
-                    var next = c.decorate ? fors.DecorateAllWith<I>() : fors.Use<I>();
-                    if (c.singleton) next = next.Singleton();
+                    if (c.singleton)
+                    {
+                        fors.Use("Singleton Helper", x => (S)c.ResolveAsSingleton(() =>
+                        {
+                             builder.UseResolver(x.GetInstance);
+                             return builder.Build(); // because we never registered I
+                        }, typeof(S), typeof(I)));
+                    }
+                    else
+                    {
+                        var next = c.decorate ? fors.DecorateAllWith<I>() : fors.Use<I>();
+                    }
                 }
             }
         }
@@ -200,6 +221,7 @@ namespace LetsAgree.IOC.StructureMapShim
     }
     class SMContainer : IContainerSpec
     {
+        public readonly Dictionary<Type, Lazy<Object>> CustomSingletons = new Dictionary<Type, Lazy<object>>();
         readonly Container c;
         public SMContainer(Registry sr)
         {

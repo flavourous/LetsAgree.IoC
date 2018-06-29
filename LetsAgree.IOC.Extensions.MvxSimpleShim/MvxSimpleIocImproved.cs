@@ -37,6 +37,8 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
         public void Dispose() => registry.GenerateContainer();
     }
 
+    // TODO I dont believe I covered all cases of singletons/decorators/collections, some might not be singltons when decorators are involved?
+
     internal class MvxSimpleIocImproved : IMvxImprovedRegistry
     {
         readonly Func<Assembly, IEnumerable<Type>> creatableTypes;
@@ -71,6 +73,20 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
         }
         readonly PPQueue<FakedConfig> ss = new PPQueue<FakedConfig>();
 
+        readonly Dictionary<Type, Object> Singletons = new Dictionary<Type, object>();
+        public Object ResolveAsSingleton(Func<Object> create, params Type[] tt)
+        {
+            if (!tt.All(x => Singletons.ContainsKey(x)))
+            {
+                var use = create();
+                foreach (var t in tt)
+                    Singletons[t] = use;
+                Singletons[use.GetType()] = use;
+            }
+            return Singletons[tt.First()];
+        }
+
+
         public IMvxImprovedDynConfig Register(Type service, Type impl)
         {
             bool donothing = false;
@@ -82,8 +98,8 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
             return ss.PP(new FakedConfig((s, d, c) =>
             {
                 if (donothing) return; // AsDecorator was called
-                var reg = basic.Register(service, impl);
-                if (s) reg.AsSingleton();
+                if (s) basic.Register(service, () => ResolveAsSingleton(() => Mvx.IocConstruct(impl),service,impl));
+                else basic.Register(service, impl);
             }, () => makeDecorator()));
         }
 
@@ -92,13 +108,9 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
             // Types registered this way arent decoratable
             return ss.PP(new FakedConfig((s, d, c) =>
             {
-                if (s) Mvx.LazyConstructAndRegisterSingleton(implimentation);
-                else Mvx.RegisterType(implimentation);
-                if (c)
-                {
-                    Lazy<Service> singleton = new Lazy<Service>(implimentation);
-                    AddCollectable(s ? () => singleton.Value : implimentation);
-                }
+                Func<Service> impl = s ? () => (Service)ResolveAsSingleton(implimentation) : implimentation;
+                if (c) AddCollectable(impl);
+                else Mvx.RegisterType(impl);
             }, delegate { }));
         }
 
@@ -113,17 +125,10 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
             return ss.PP(new FakedConfig((s, d, c) =>
             {
                 if (donothing) return; // AsDecorator was called
-                if (c)
-                {
-                    Func<Service> create = () => Mvx.IocConstruct<Implimentation>();
-                    Lazy<Service> singleton = new Lazy<Service>(create);
-                    AddCollectable<Service>(s ? () => singleton.Value : create);
-                }
-                else
-                {
-                    var reg = basic.Register<Service, Implimentation>();
-                    if (s) reg.AsSingleton();
-                }
+                Func<Service> create = () => Mvx.IocConstruct<Implimentation>();
+                Func<Service> impl = s ? () => (Service)ResolveAsSingleton(create, typeof(Service), typeof(Implimentation)) : create;
+                if (c) AddCollectable(impl);
+                else Mvx.RegisterType(impl);
             }, () => makeDecorator()));
         }
 
@@ -148,6 +153,16 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim
                                          })
                                      )))
                         act();
+                else
+                {
+                    foreach (var t in scanned)
+                    {
+                        Func<Object> implimentation = () => Mvx.IocConstruct(t.ImplementationType);
+                        var impl = s ? () => ResolveAsSingleton(implimentation) : implimentation;
+                        if (c) AddCollectable(impl);
+                        else Mvx.RegisterType(impl);
+                    }
+                }
                 if (s) scanned.RegisterAsLazySingleton();
                 else scanned.RegisterAsDynamic();
             });

@@ -63,7 +63,7 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim.Test
                 Assert.AreEqual(2, all.Length);
             }
         }
-       
+
         class Root<C, L, R, N>
             where C : ISingletonConfig<C>, IDecoratorConfig<C>, ICollectionConfig<C>
             where L : ISingletonConfig<L>, ICollectionConfig<L>
@@ -84,6 +84,22 @@ namespace LetsAgree.IOC.Extensions.MvxSimpleShim.Test
             {
                 var reg = registryScope.Registry;
                 Root<IMvxImprovedConfig, IMvxImprovedLocatorConfig, IMvxImprovedRegistry, IMvxSimpleContainer>.Compose(reg);
+            }
+        }
+        [Test]
+        public void OneFromManyImplimintationRegistrations()
+        {
+            base.Setup();
+            using (var registryScope = new MvxSimpleIocImprovedCreator(a => a.GetTypes().Where(x => x.GetConstructors().Any())))
+            {
+                var reg = registryScope.Registry;
+                reg.Register<ITesti, t1>().AsSingleton().AsCollection();
+                reg.Register<ITesti, t1>().AsSingleton();
+                reg.Register<t1, t1>().AsSingleton();
+                var c = reg.GenerateContainer();
+                Assert.AreSame(c.Resolve<ITesti>(), c.Resolve<t1>());
+                Assert.AreSame(c.Resolve<ITesti[]>()[0], c.Resolve<t1>());
+                Assert.AreSame(c.Resolve<ITesti>(), c.Resolve<ITesti[]>()[0]);
             }
         }
     }

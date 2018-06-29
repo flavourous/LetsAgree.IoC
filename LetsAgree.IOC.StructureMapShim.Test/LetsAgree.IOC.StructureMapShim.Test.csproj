@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections.cs" />
+    <Compile Include="Singleton.cs" />
     <Compile Include="Composition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
