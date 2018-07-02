@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace LetsAgree.IOC.Extensions
+namespace System.IoC.Extensions
 {
     public class ResolveBuilder
     {

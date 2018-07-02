@@ -8,8 +8,8 @@
     <ProjectGuid>{028BD45B-4C80-4A79-BEDB-59834E44A29E}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LetsAgree.IOC.Example</RootNamespace>
-    <AssemblyName>LetsAgree.IOC.Example</AssemblyName>
+    <RootNamespace>System.IoC.Example</RootNamespace>
+    <AssemblyName>System.IoC.Example</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>LetsAgree.IOC.Example.Program</StartupObject>
+    <StartupObject>System.IoC.Example.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework, Version=3.9.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
@@ -53,9 +53,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LetsAgree.IOC\LetsAgree.IOC.csproj">
+    <ProjectReference Include="..\System.IoC\System.IoC.csproj">
       <Project>{93c5fca7-f8d1-4aab-b2f7-da04c1142e73}</Project>
-      <Name>LetsAgree.IOC</Name>
+      <Name>System.IoC</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

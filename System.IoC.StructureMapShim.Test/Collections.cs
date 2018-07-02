@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LetsAgree.IOC.StructureMapShim.Test
+namespace System.IoC.StructureMapShim.Test
 {
     public interface ITesti { }
     public class t1 : ITesti { }

@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LetsAgree.IOC.Extensions\LetsAgree.IOC.Extensions.csproj" />
-    <ProjectReference Include="..\LetsAgree.IOC.MvxSimpleShim\LetsAgree.IOC.MvxSimpleShim.csproj" />
+    <ProjectReference Include="..\System.IoC.Extensions\System.IoC.Extensions.csproj" />
+    <ProjectReference Include="..\System.IoC.MvxSimpleShim\System.IoC.MvxSimpleShim.csproj" />
   </ItemGroup>
 
 </Project>

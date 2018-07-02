@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LetsAgree.IOC.StructureMapShim.Test
+namespace System.IoC.StructureMapShim.Test
 {
     class Root<C,L,R,N>
         where C : ISingletonConfig<C>, IDecoratorConfig<C>, ICollectionConfig<C>

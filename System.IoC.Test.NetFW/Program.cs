@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LetsAgree.IOC.Example
+namespace System.IoC.Example
 {
     // generic paramaters on classes cannot be inferred, but can on methods.  Could use static creator pattern.
     // however, the compiler has been unable to resolve types anyway since I made IConfig less strict (vary on each IxxxRegistration)

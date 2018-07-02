@@ -3,21 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC", "LetsAgree.IOC\LetsAgree.IOC.csproj", "{93C5FCA7-F8D1-4AAB-B2F7-DA04C1142E73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.IoC", "System.IoC\System.IoC.csproj", "{93C5FCA7-F8D1-4AAB-B2F7-DA04C1142E73}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC.Extensions", "LetsAgree.IOC.Extensions\LetsAgree.IOC.Extensions.csproj", "{84F81CD7-4E9E-4D7C-8585-9B1A07E7FFF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.IoC.Extensions", "System.IoC.Extensions\System.IoC.Extensions.csproj", "{84F81CD7-4E9E-4D7C-8585-9B1A07E7FFF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.Example", "LetsAgree.IOC.Test.NetFW\LetsAgree.IOC.Example.csproj", "{028BD45B-4C80-4A79-BEDB-59834E44A29E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.IoC.Example", "System.IoC.Test.NetFW\System.IoC.Example.csproj", "{028BD45B-4C80-4A79-BEDB-59834E44A29E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC.StructureMapShim", "LetsAgree.IOC.StructureMapShim\LetsAgree.IOC.StructureMapShim.csproj", "{7514B9D0-B515-4269-8FDA-C1A56F269996}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.IoC.StructureMapShim", "System.IoC.StructureMapShim\System.IoC.StructureMapShim.csproj", "{7514B9D0-B515-4269-8FDA-C1A56F269996}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC.MvxSimpleShim", "LetsAgree.IOC.MvxSimpleShim\LetsAgree.IOC.MvxSimpleShim.csproj", "{C508DBBF-4465-4DA3-AFE4-030FB212B8F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.IoC.MvxSimpleShim", "System.IoC.MvxSimpleShim\System.IoC.MvxSimpleShim.csproj", "{C508DBBF-4465-4DA3-AFE4-030FB212B8F1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetsAgree.IOC.Extensions.MvxSimpleShim", "LetsAgree.IOC.Extensions.MvxSimpleShim\LetsAgree.IOC.Extensions.MvxSimpleShim.csproj", "{96185787-A941-498D-A4FF-12D3C6C43F70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.IoC.Extensions.MvxSimpleShim", "System.IoC.Extensions.MvxSimpleShim\System.IoC.Extensions.MvxSimpleShim.csproj", "{96185787-A941-498D-A4FF-12D3C6C43F70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.Extensions.MvxSimpleShim.Test", "LetsAgree.IOC.Extensions.MvxSimpleShim.Test\LetsAgree.IOC.Extensions.MvxSimpleShim.Test.csproj", "{49E0580A-02ED-45D7-931A-320CA1E85ACB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.IoC.Extensions.MvxSimpleShim.Test", "System.IoC.Extensions.MvxSimpleShim.Test\System.IoC.Extensions.MvxSimpleShim.Test.csproj", "{49E0580A-02ED-45D7-931A-320CA1E85ACB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LetsAgree.IOC.StructureMapShim.Test", "LetsAgree.IOC.StructureMapShim.Test\LetsAgree.IOC.StructureMapShim.Test.csproj", "{A3CAC189-4C62-4E19-A875-4D02397058AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.IoC.StructureMapShim.Test", "System.IoC.StructureMapShim.Test\System.IoC.StructureMapShim.Test.csproj", "{A3CAC189-4C62-4E19-A875-4D02397058AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

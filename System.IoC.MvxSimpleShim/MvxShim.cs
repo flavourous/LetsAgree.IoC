@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace LetsAgree.IOC.MvxSimpleShim
+namespace System.IoC.MvxSimpleShim
 {
     public interface IMvxSimpleContainer :
                                       IBasicContainer,

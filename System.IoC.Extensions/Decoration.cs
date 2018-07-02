@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LetsAgree.IOC.Extensions
+namespace System.IoC.Extensions
 {
-    // TODO: Can this be written in terms of LetsAgree.IOC interfaces alone, as a registry decorator or something?
+    // TODO: Can this be written in terms of System.IoC interfaces alone, as a registry decorator or something?
     public delegate void MakeDecoratorCallback();
     public delegate Type GetServiceCallback(bool skipRegistration);
     public delegate void RegisterServiceDelegate(Type service, Func<object> creator);

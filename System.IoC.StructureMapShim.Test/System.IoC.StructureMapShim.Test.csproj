@@ -8,8 +8,8 @@
     <ProjectGuid>{A3CAC189-4C62-4E19-A875-4D02397058AA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LetsAgree.IOC.StructureMapShim.Test</RootNamespace>
-    <AssemblyName>LetsAgree.IOC.StructureMapShim.Test</AssemblyName>
+    <RootNamespace>System.IoC.StructureMapShim.Test</RootNamespace>
+    <AssemblyName>System.IoC.StructureMapShim.Test</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -58,13 +58,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LetsAgree.IOC.StructureMapShim\LetsAgree.IOC.StructureMapShim.csproj">
+    <ProjectReference Include="..\System.IoC.StructureMapShim\System.IoC.StructureMapShim.csproj">
       <Project>{7514b9d0-b515-4269-8fda-c1a56f269996}</Project>
-      <Name>LetsAgree.IOC.StructureMapShim</Name>
+      <Name>System.IoC.StructureMapShim</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LetsAgree.IOC\LetsAgree.IOC.csproj">
+    <ProjectReference Include="..\System.IoC\System.IoC.csproj">
       <Project>{93C5FCA7-F8D1-4AAB-B2F7-DA04C1142E73}</Project>
-      <Name>LetsAgree.IOC</Name>
+      <Name>System.IoC</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

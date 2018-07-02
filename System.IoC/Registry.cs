@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace LetsAgree.IOC
+namespace System.IoC
 {
     // Generics like this scare me, more than once they have made code nearly impossible to change.  But,
     // I want to achieve compile time compliance of library ioc needs and ioc framework capabilities.

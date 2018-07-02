@@ -8,8 +8,8 @@
     <ProjectGuid>{49E0580A-02ED-45D7-931A-320CA1E85ACB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LetsAgree.IOC.Extensions.MvxSimpleShim.Test</RootNamespace>
-    <AssemblyName>LetsAgree.IOC.Extensions.MvxSimpleShim.Test</AssemblyName>
+    <RootNamespace>System.IoC.Extensions.MvxSimpleShim.Test</RootNamespace>
+    <AssemblyName>System.IoC.Extensions.MvxSimpleShim.Test</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -68,17 +68,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LetsAgree.IOC.Extensions.MvxSimpleShim\LetsAgree.IOC.Extensions.MvxSimpleShim.csproj">
+    <ProjectReference Include="..\System.IoC.Extensions.MvxSimpleShim\System.IoC.Extensions.MvxSimpleShim.csproj">
       <Project>{96185787-a941-498d-a4ff-12d3c6c43f70}</Project>
-      <Name>LetsAgree.IOC.Extensions.MvxSimpleShim</Name>
+      <Name>System.IoC.Extensions.MvxSimpleShim</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LetsAgree.IOC.MvxSimpleShim\LetsAgree.IOC.MvxSimpleShim.csproj">
+    <ProjectReference Include="..\System.IoC.MvxSimpleShim\System.IoC.MvxSimpleShim.csproj">
       <Project>{C508DBBF-4465-4DA3-AFE4-030FB212B8F1}</Project>
-      <Name>LetsAgree.IOC.MvxSimpleShim</Name>
+      <Name>System.IoC.MvxSimpleShim</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LetsAgree.IOC\LetsAgree.IOC.csproj">
+    <ProjectReference Include="..\System.IoC\System.IoC.csproj">
       <Project>{93C5FCA7-F8D1-4AAB-B2F7-DA04C1142E73}</Project>
-      <Name>LetsAgree.IOC</Name>
+      <Name>System.IoC</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

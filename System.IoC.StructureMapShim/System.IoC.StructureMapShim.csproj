@@ -10,8 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LetsAgree.IOC.Extensions\LetsAgree.IOC.Extensions.csproj" />
-    <ProjectReference Include="..\LetsAgree.IOC\LetsAgree.IOC.csproj" />
+    <ProjectReference Include="..\System.IoC.Extensions\System.IoC.Extensions.csproj" />
+    <ProjectReference Include="..\System.IoC\System.IoC.csproj" />
   </ItemGroup>
 
 </Project>

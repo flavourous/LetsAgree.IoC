@@ -1,4 +1,4 @@
-﻿using LetsAgree.IOC.MvxSimpleShim;
+﻿using System.IoC.MvxSimpleShim;
 using MvvmCross.Platform;
 using MvvmCross.Test.Core;
 using NUnit.Framework;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LetsAgree.IOC.Extensions.MvxSimpleShim.Test
+namespace System.IoC.Extensions.MvxSimpleShim.Test
 {
     public interface Irt { }
     public class rt : Irt { }

@@ -1,4 +1,4 @@
-﻿using LetsAgree.IOC.MvxSimpleShim;
+﻿using System.IoC.MvxSimpleShim;
 using MvvmCross.Platform;
 using MvvmCross.Platform.IoC;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace LetsAgree.IOC.Extensions.MvxSimpleShim
+namespace System.IoC.Extensions.MvxSimpleShim
 {
     // TODO: this wouldnt be needed if IOC.Extensions worked with the IOC interfaces alone
     public interface IMvxImprovedDynConfig : ISingletonConfig<IMvxImprovedDynConfig>, IDecoratorConfig<IMvxImprovedDynConfig> { }

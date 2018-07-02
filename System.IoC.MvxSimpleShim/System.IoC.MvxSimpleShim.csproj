@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LetsAgree.IOC\LetsAgree.IOC.csproj" />
+    <ProjectReference Include="..\System.IoC\System.IoC.csproj" />
   </ItemGroup>
 
 </Project>
